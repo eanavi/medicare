@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block titulo %}
+{% if t1 %}
+{{ t1 }}
+{% endif %}
+{% endblock %}
+{% block encabezado %} {{ t2 }} {% endblock %}
+
+{% block acceso %}
+{% if acc %}
+{% for ac in acc %}
+<li class="nav-item d-none d-md-block">
+  <a href="{{ ac.ruta }}" class="nav-link">{{ ac.nombre_acceso }}</a>
+</li>
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block contenido%}
+
+<div class="col-lg-12">
+  <div class="card card-default">
+    <div class="card-header">
+      <form action="">
+        <div class="row">
+          <div class="col-10">
+            <input type="text" class="form-control" name="txtBuscar"
+              placeholder="CI - Fecha de Nacimiento(dd-mm-YYYY) - Nombre - Nombre y Apellido">
+          </div>
+          <div class="col-2">
+            <input type="submit" name="btnBuscar" class="btn btn-info form-control" value="Buscar">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card-body">
+      <div class="row">
+        <div class="col-sum-12">
+          <table id="tblDatos" class="table table-bordered table-hover dataTable dtr-inline">
+            <thead>
+              <th>No</th>
+              <th>CI</th>
+              <th>Nombres</th>
+              <th>Paterno</th>
+              <th>Materno</th>
+              <th>Fecha Nac</th>
+              <th></th>
+            </thead>
+            <tbody>
+              {% for per in datos %}
+              <tr>
+                <td>{{ per.id_persona }}</td>
+                <td>{{ per.ci }}</td>
+                <td>{{ per.nombres }}</td>
+                <td>{{ per.paterno }}</td>
+                <td>{{ per.materno }}</td>
+                <td>{{ per.fecha_nacimiento.strftime("%d/%m/%Y") }}</td>
+                <td><a href="editarPersona/{{ per.id_persona }}" title="Editar"><img
+                      src="/static/assets/img/list-outline.svg" width="20" height="20" alt=""></a></td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+
+    </div>
+
+  </div>
+</div>
+<script src=" {{ url_for('static', filename='js/tblPersonas.js') }}"></script>
+{% endblock %}
