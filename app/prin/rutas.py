@@ -80,7 +80,7 @@ def iniciodash(tipo):
         )
 
     return render_template(
-        "prin/dashboard.html", datos=ultimas_personas, acc=rutas, t1=titulo, t2=titulo2
+        "prin/dashboard.html", datos=ultimas_personas, acc=rutas, t1=titulo, tipoPersona=titulo2
     )
 
 

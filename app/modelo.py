@@ -17,7 +17,7 @@ class Persona(db.Model):
     __tablename__ = "persona"
 
     id_persona = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(CHAR(1), CheckConstraint("tipo in ('M', 'E', 'P')"))
+    tipo = db.Column(CHAR(1), CheckConstraint("tipo in ('E', 'P')"))
     ci = db.Column(db.String(10), unique=True, nullable=False)
     nombres = db.Column(db.String(60))
     paterno = db.Column(db.String(60))
@@ -76,6 +76,11 @@ class Empleado(Persona):
     fecha_ingreso = db.Column(db.Date)
     codigo_marcado = db.Column(db.Integer)
     trato = db.Column(db.String(10))
+    tipo_empleado = db.Column(
+        CHAR(2), CheckConstraint("tipo_empleado IN ('M', 'E', 'T', 'AP', 'AT', 'AS', 'AO')")
+    )
+    cargo = db.Column(db.String(50))
+    especialidad = db.Column(db.String(50))
 
     def __init__(
         self,
@@ -92,6 +97,9 @@ class Empleado(Persona):
         fecha_ingreso,
         codigo_marcado,
         trato,
+        tipo_empleado,
+        cargo,
+        especialidad,
     ):
         super().__init__(
             tipo,
@@ -108,6 +116,9 @@ class Empleado(Persona):
         self.fecha_ingreso = fecha_ingreso
         self.codigo_marcado = codigo_marcado
         self.trato = trato
+        self.tipo_empleado = tipo_empleado
+        self.cargo = cargo
+        self.especialidad = especialidad
 
     def to_json(self):
         emp_js = super().to_json()
@@ -117,71 +128,12 @@ class Empleado(Persona):
                 "fecha_ingreso": self.fecha_ingreso,
                 "codigo_marcado": self.codigo_marcado,
                 "trato": self.trato,
+                "tipo_empleado": self.tipo_empleado,
+                "cargo": self.cargo,
+                "self": self.especialidad,
             }
         )
         return emp_js
-
-
-# Medico hereda de Persona
-class Medico(Persona):
-    __tablename__ = "medico"
-
-    id_medico = db.Column(db.Integer, primary_key=True)
-    id_persona = db.Column(db.Integer, db.ForeignKey("persona.id_persona"))
-    codigo_col = db.Column(db.String(6))
-    tipo_prof = db.Column(
-        CHAR(2), CheckConstraint("tipo_prof IN ('M', 'E', 'T', 'OP')")
-    )
-    especialidad = db.Column(db.String(20))
-    trato = db.Column(db.String(10))
-
-    def __init__(
-        self,
-        tipo,
-        ci,
-        nombres,
-        paterno,
-        materno,
-        sexo,
-        fecha_reg,
-        usuario_reg,
-        ip_reg,
-        estado_reg,
-        codigo_col,
-        tipo_prof,
-        especialidad,
-        trato,
-    ):
-        super().__init__(
-            tipo,
-            ci,
-            nombres,
-            paterno,
-            materno,
-            sexo,
-            fecha_reg,
-            usuario_reg,
-            ip_reg,
-            estado_reg,
-        )
-        self.codigo_col = codigo_col
-        self.tipo_prof = tipo_prof
-        self.especialidad = especialidad
-        self.trato = trato
-
-    def to_json(cls):
-        medico_json = super().to_json()
-        medico_json.update(
-            {
-                "id_medico": cls.id_medico,
-                "codigo_col": cls.codigo_col,
-                "tipo_prof": cls.tipo_prof,
-                "especialidad": cls.especialidad,
-                "trato": cls.especialidad,
-            }
-        )
-
-        return medico_json
 
 
 # Paciente hereda de Persona
@@ -285,22 +237,18 @@ class Horario(db.Model):
 
     id_horario = db.Column(db.Integer, primary_key=True)
     id_empleado = db.Column(db.Integer, ForeignKey("empleado.id_empleado"))
-    area_empleado = db.Column(CHAR(1), CheckConstraint("area_empleado IN ('A', 'M')"))
     dia_sem = db.Column(db.String(2))
     hora_inicio = db.Column(db.Time)
     hora_fin = db.Column(db.Time)
-    estado_horario = db.Column(CHAR(1), CheckConstraint("estado_horario IN('A', 'V')"))
     estado_reg = db.Column(CHAR(1), CheckConstraint("estado_reg IN ('V', 'A')"))
 
     def to_json(self):
         return {
             "id_horario": self.id_horario,
             "id_empleado": self.id_empleado,
-            "area_empleado": self.area_empleado,
             "dia_sem": self.dia_sem,
             "hora_inicio": self.hora_inicio,
             "hora_fin": self.hora_fin,
-            "estado_horario": self.estado_horario,
             "estado_reg": self.estado_reg,
         }
 
@@ -421,7 +369,7 @@ class Consulta(db.Model):
 
     id_consulta = db.Column(db.Integer, primary_key=True)
     id_ficha = db.Column(db.Integer, ForeignKey("ficha.id_ficha"))
-    id_medico = db.Column(db.Integer, ForeignKey("medico.id_medico"))
+    id_empleado = db.Column(db.Integer, ForeignKey("empleado.id_empleado"))
     fecha_atencion = db.Column(db.Date)
     id_paciente = db.Column(db.Integer, ForeignKey("paciente.id_paciente"))
     signos_vitales = db.Column(JSON)
@@ -434,7 +382,7 @@ class Consulta(db.Model):
         return {
             "id_consulta": self.id_consulta,
             "id_ficha": self.id_ficha,
-            "id_medico": self.id_medico,
+            "id_empleado": self.id_empleado,
             "fecha_atencion": self.fecha_atencion,
             "id_paciente": self.id_paciente,
             "signos_vitales": self.signos_vitales,
@@ -513,9 +461,6 @@ class Usuario(UserMixin, db.Model):
 
     id_usuario = db.Column(db.Integer, primary_key=True)
     id_empleado = db.Column(db.Integer, ForeignKey("empleado.id_empleado"))
-    tipo_empleado = db.Column(
-        CHAR(2), CheckConstraint("tipo_empleado IN ('M', 'E', 'T', 'AP', 'AT', 'AS')")
-    )
     nombre_usuario = db.Column(db.String(20))
     clave_usuario = db.Column(db.String(250))
     email = db.Column(db.String(250))
@@ -528,7 +473,6 @@ class Usuario(UserMixin, db.Model):
         return {
             "id_usuario": self.id_usuario,
             "id_empleado": self.id_empleado,
-            "tipo_empleado": self.tipo_empleado,
             "nombre_usuario": self.nombre_usuario,
             "clave_usuario": self.clave_usuario,
             "email": self.email,

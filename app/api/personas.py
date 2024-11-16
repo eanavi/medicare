@@ -31,7 +31,7 @@ pers = db.session.query(Persona).filter(
 @api_bp.route("/persona/busca/<string:criterio>/<string:tipo>")
 @login_required
 def get_busca_persona_tipo(criterio, tipo):
-    con = tipo if tipo in ["M", "E", "P"] else "P"
+    con = tipo if tipo in ["E", "P"] else "P"
     pers = []
     tipo_dato = otr.determinar_tipo(criterio)
     if tipo_dato == "Numero":
