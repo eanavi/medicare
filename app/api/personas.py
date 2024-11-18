@@ -8,6 +8,7 @@ from ..auxiliar import otr
 
 
 @api_bp.route("/personas")
+@login_required
 def get_personas():
     pers = Persona.query.all()
     return jsonify({"personas": [per.to_json() for per in pers]})

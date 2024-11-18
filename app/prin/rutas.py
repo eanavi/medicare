@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, session
 from flask_login import login_required
 from sqlalchemy import desc
 from app import db
@@ -15,72 +15,25 @@ def iniciodash(tipo):
     ultimas_personas = []
     rutas = []
 
-    if tipo == "M":  # Medicos
-        titulo = "Medico"
-        titulo2 = "Pacientes"
-        rutas = Acceso.query.where(Acceso.tipo_usuario == "M")
+    te = session.get("tipo_empleado", "I")
 
-        ultimas_personas = (
-            db.session.query(Persona)
-            .where(Persona.tipo == "p", Persona.estado_reg == "V")
-            .order_by(desc(Persona.id_persona))
-            .limit(10)
-            .all()
-        )
-    elif tipo == "E":  # Enfermeras
-        titulo = "Enfermera"
-        titulo2 = "Pacientes"
-        rutas = Acceso.query.where(Acceso.tipo_usuario == "M")
+    rutas = (
+        Acceso.query.where(Acceso.tipo_usuario == te).order_by(Acceso.id_acceso).all()
+    )
 
-        ultimas_personas = (
-            db.session.query(Persona)
-            .where(Persona.tipo == "p", Persona.estado_reg == "V")
-            .order_by(desc(Persona.id_persona))
-            .limit(10)
-            .all()
-        )
-    elif tipo == "AP":
-        titulo = "Profesional Administrativo"
-        titulo2 = "Empleados"
-        rutas = Acceso.query.where(Acceso.tipo_usuario == "E")
+    if len(tipo) <= 2:
+        titulo2 = rutas[0].nombre_acceso.capitalize() if rutas else "Personas"
+    else:
+        titulo2 = tipo.capitalize()
 
-        ultimas_personas = (
-            db.session.query(Persona)
-            .where(
-                Persona.tipo == "E",
-                Persona.estado_reg == "V",
-            )
-            .order_by(desc(Persona.id_persona))
-            .limit(10)
-            .all()
-        )
-    elif tipo == "AT":
-        titulo = "Tecnico Administrativo"
-        titulo2 = "Personas"
-        rutas = Acceso.query.where(Acceso.tipo_usuario == "T")
-
-        ultimas_personas = (
-            db.session.query(Persona)
-            .where(Persona.tipo == "P", Persona.estado_reg == "V")
-            .order_by(desc(Persona.id_persona))
-            .limit(10)
-            .all()
-        )
-    elif tipo == "AS":
-        titulo = "Administrador de Sistemas"
-        titulo2 = "Empleados"
-        rutas = Acceso.query.filter(Acceso.tipo_usuario == "T")
-
-        ultimas_personas = (
-            db.session.query(Persona)
-            .where(Persona.tipo == "E", Persona.estado_reg == "V")
-            .order_by(desc(Persona.id_persona))
-            .limit(10)
-            .all()
-        )
+    titulo = te
 
     return render_template(
-        "prin/dashboard.html", datos=ultimas_personas, acc=rutas, t1=titulo, tipoPersona=titulo2
+        "prin/dashboard.html",
+        datos=[],
+        acc=rutas,
+        t1=titulo,
+        tipoPersona=titulo2,
     )
 
 

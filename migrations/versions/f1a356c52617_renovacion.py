@@ -431,6 +431,32 @@ def upgrade():
         """
     )
 
+    op.execute(
+        """
+        INSERT INTO acceso 
+        (tipo_usuario, nombre_acceso, ruta, tipo_acceso, estado_reg) VALUES
+        ('M', 'Pacientes', 'pacientes', 'G', 'V'),
+        ('M', 'Fichas', 'fichas', 'V', 'V'),
+        ('M', 'Turnos', 'turnos', 'V', 'V'),
+        
+        ('AT','Pacienes', 'pacientes', 'G', 'V'),
+        ('AT','Fichas', 'fichas', 'G', 'V'),
+        ('AT','Turnos', 'turnos', 'G', 'V'),
+        
+        ('AS','Pacientes', 'pacientes', 'G', 'V'),
+        ('AS','Empleados', 'empleados', 'G', 'V'),
+        ('AS','Fichas', 'fichas', 'G', 'V'),
+        ('AS','Turnos', 'turnos', 'G', 'V'),
+        ('AS','Especialidades', 'especialidades', 'G', 'V'),
+        ('AS','Usuarios', 'usuarios', 'G', 'V'),
+        ('AS','Prestaciones', 'prestaciones', 'G', 'V'),
+        
+        ('E', 'Pacientes', 'pacientes', 'V', 'V'),
+        ('E', 'Fichas', 'fichas', 'V', 'V'),
+        ('E', 'Turnos', 'tukrnos', 'V', 'V');
+        """
+    )
+
     tbl_usuario = table(
         "usuario",
         column("id_usuario", sa.Integer),

@@ -1,6 +1,6 @@
-from flask import request, render_template, url_for, redirect, flash
+from flask import request, render_template, url_for, redirect, flash, session
 from flask_login import login_user, logout_user
-from ..modelo import Usuario
+from ..modelo import Usuario, Empleado
 from . import auth_bp
 
 
@@ -14,9 +14,13 @@ def login():
         usuario = Usuario.query.filter_by(nombre_usuario=nombreUsuario).first()
 
         if usuario and usuario.check_password(claveUsuairo):
-            tipoE = usuario.tipo_empleado if not None else "E"
+            empl = Empleado.query.where(
+                Empleado.id_empleado == usuario.id_empleado
+            ).first()
+            tipoE = empl.tipo_empleado if empl.tipo_empleado else "I"  # I = invitado
             login_user(usuario, recuerdame)
             next = request.args.get("next")
+            session["tipo_empleado"] = tipoE
             if next is None or not next.startswith("/"):
                 next = url_for("prin.iniciodash", tipo=tipoE)
             return redirect(next)

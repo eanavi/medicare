@@ -77,10 +77,13 @@ class Empleado(Persona):
     codigo_marcado = db.Column(db.Integer)
     trato = db.Column(db.String(10))
     tipo_empleado = db.Column(
-        CHAR(2), CheckConstraint("tipo_empleado IN ('M', 'E', 'T', 'AP', 'AT', 'AS', 'AO')")
+        CHAR(2),
+        CheckConstraint("tipo_empleado IN ('M', 'E', 'T', 'AP', 'AT', 'AS', 'AO')"),
     )
     cargo = db.Column(db.String(50))
-    especialidad = db.Column(db.String(50))
+    id_especialidad = db.Column(
+        db.Integer, db.ForeignKey("especialidad.id_especialidad")
+    )
 
     def __init__(
         self,
@@ -232,27 +235,6 @@ class Familia(db.Model):
         }
 
 
-class Horario(db.Model):
-    __tablename__ = "horario"
-
-    id_horario = db.Column(db.Integer, primary_key=True)
-    id_empleado = db.Column(db.Integer, ForeignKey("empleado.id_empleado"))
-    dia_sem = db.Column(db.String(2))
-    hora_inicio = db.Column(db.Time)
-    hora_fin = db.Column(db.Time)
-    estado_reg = db.Column(CHAR(1), CheckConstraint("estado_reg IN ('V', 'A')"))
-
-    def to_json(self):
-        return {
-            "id_horario": self.id_horario,
-            "id_empleado": self.id_empleado,
-            "dia_sem": self.dia_sem,
-            "hora_inicio": self.hora_inicio,
-            "hora_fin": self.hora_fin,
-            "estado_reg": self.estado_reg,
-        }
-
-
 class Especialidad(db.Model):
     __tablename__ = "especialidad"
 
@@ -315,6 +297,7 @@ class Turno(db.Model):
     __tablename__ = "turno"
 
     id_turno = db.Column(db.Integer, primary_key=True)
+    id_empleado = db.Column(db.Integer, ForeignKey("empleado.id_empleado"))
     dia_semana = db.Column(
         CHAR(1),
         CheckConstraint("dia_semana IN ('L', 'M', 'I', 'J', 'V', 'S', 'D')"),
